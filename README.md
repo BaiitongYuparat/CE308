@@ -18,3 +18,23 @@ data={items} //array สินค้าไปให้ FlatList ใช้งา�
                     <CustomButton  title="สั่งซื้อ" size={item.btnSize} variant={item.btnColor} onPress={() => alert(item.productname)} />
                </View>
   ดึงปุ่มมาใช้จาก CustomButton
+
+
+  week 4.2
+  กำหนด  label: string;
+    value: string;
+    onChangeText: (text: string) => void;
+    placeholder?: string;
+    
+สร้าง state สำหรับเก็บข้อมูลฟอร์ม
+    const [productName, setProductName] = useState("");
+    const [price, setPrice] = useState("");
+    const [pcs, setPcs] = useState("");
+
+เอาค่าที่ผู้ใช้กรอกในฟอร์มมาแสดงในกล่อง Alert
+const handleSubmit = () => {
+        Alert.alert(
+            "ข้อมูลสินค้า",
+            `ชื่อสินค้า: ${productName}\nราคา: ${price}\nจำนวน: ${pcs}`
+        );
+    };
