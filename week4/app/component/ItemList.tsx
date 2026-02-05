@@ -23,8 +23,8 @@ export const ItemList = ({ items }: ItemListProps) => {
                 <View className="p-4 bg-gray-300 rounded-lg m-2">
                     <Text className="text-gray-800 text-4xl">ชื่อสินค้า : {item.productname}</Text>
                     <Text className="text-base text-gray-800">ราคา : {item.price}</Text>
-                    <Text className="text-base text-gray-800">จำนวน : {item.pcs}</Text>
-                    <CustomButton title="สั่งซื้อ" size={item.btnSize} variant={item.btnColor} onPress={() => alert(item.productname)} />
+                    <Text className="text-base text-gray-800 ">จำนวน : {item.pcs}</Text>
+                    <CustomButton  title="สั่งซื้อ" size={item.btnSize} variant={item.btnColor} onPress={() => alert(item.productname)} />
                 </View>
             )}
         />

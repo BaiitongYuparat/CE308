@@ -14,9 +14,9 @@ export const CustomButton = ({
     size = "md", //ค่าเริ่มต้น
 }: CustomButtonProps) => {
     const variantClasses = {
-        primary: "bg-blue-500 active:bg-blue-70",
-        secondary: "bg-gray-500 active:bg-gray-70",
-        danger: "bg-red-500 active:bg-red-70"
+        primary: "bg-blue-500 ",
+        secondary: "bg-gray-500",
+        danger: "bg-red-500 "
     };
 
     const sizeClasses ={
@@ -30,7 +30,7 @@ export const CustomButton = ({
         className= {[
             variantClasses[variant],
             sizeClasses[size],
-            "rounded-lg active:bg-origin-70"
+            "rounded-lg  active:bg-opacity-70  items-center justify-center "
         ].join(' ')}
         onPress={onPress}
         >
