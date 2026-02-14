@@ -1,8 +1,13 @@
 import "./global.css";
 import React, { useState } from "react";
-import { Text, View, ScrollView, KeyboardAvoidingView, Platform, Alert, TouchableNativeFeedback, Keyboard } from "react-native";
+import { Text, View, ScrollView, KeyboardAvoidingView, Platform, Alert, TouchableNativeFeedback, Keyboard, TouchableOpacity } from "react-native";
 import CudtomButtom from "./component/CustomButton";
 import CustomInput from "./component/CustomInput";
+import Checkbox from "./component/Checkbox";
+import RadioGroup from "./component/RadioGroup";
+import DateTimePicker from "@react-native-community/datetimepicker";
+
+
 
 interface FromData {
   fullname: string;
@@ -11,6 +16,8 @@ interface FromData {
   password: string;
   confirmPassword: string;
   address: string;
+  gender: string;
+  birthDate: Date | null;
 }
 
 interface FromError {
@@ -20,7 +27,17 @@ interface FromError {
   password?: string;
   confirmPassword?: string;
   address?: string;
+  gender?: string;
+  birthDate?: string;
 }
+
+const formatDate = (date: Date) => {
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
 
 export default function Index() {
 
@@ -31,6 +48,8 @@ export default function Index() {
     password: '',
     confirmPassword: "",
     address: "",
+    gender: "",
+    birthDate: null,
   });
 
   const [errorss, setErrors] = useState<FromError>({});
@@ -39,10 +58,19 @@ export default function Index() {
 
   const [isLoading, setIsLoading] = useState(false)
 
-  const validateField = (name: string, value: string): string | undefined => {
+  const [isAccepted, setIsAccepted] = useState(false);
+
+  const [checkboxTouched, setCheckboxTouched] = useState(false);
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+
+
+
+  const validateField = ( name: keyof FromData, value: string | Date | null ): string | undefined => {
     switch (name) {
       case "fullname":
-        if (!value.trim()) {
+        if (typeof value !== "string" || !value.trim()) {
           return "กรอกชื่อ - นามกุล ";
         }
         if (value.trim().length < 3) {
@@ -51,7 +79,7 @@ export default function Index() {
         return undefined;
 
       case "email":
-        if (!value.trim()) {
+        if (typeof value !== "string" || !value.trim()) {
           return "กรอกอีเมล";
         }
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -61,7 +89,7 @@ export default function Index() {
         return undefined;
 
       case "phone":
-        if (!value.trim()) {
+        if (typeof value !== "string" || !value.trim()) {
           return "กรอกเบอร์โทรศัพท์";
         }
         const phoneRegex = /^[0-9]{10}$/;
@@ -71,7 +99,7 @@ export default function Index() {
         return undefined;
 
       case "password":
-        if (!value) {
+        if (typeof value !== "string" || !value.trim()) {
           return "กรอกรหัสผ่าน"
         }
         if (value.length < 6) {
@@ -80,13 +108,32 @@ export default function Index() {
         return undefined;
 
       case "confirmPassword":
-        if (!value) {
+        if (typeof value !== "string" || !value.trim()) {
           return "ยืนยันรหัสผ่าน"
         }
         if (value !== formData.password) {
           return "รหัสผ่านไม่ตรงกัน"
         }
         return undefined
+
+      case "address":
+        if (typeof value !== "string" || !value.trim()) {
+          return "กรอกที่อยู่"
+        }
+        if (value.trim().length < 10) {
+          return "ต้องกรอกอย่างน้อย 10 ตัวอักษร";
+        }
+        return undefined
+      case "gender":
+        if (!formData.gender) {
+          return "กรุณาเลือกเพศ";
+        }
+        return undefined;
+      case "birthDate":
+        if (!value) {
+          return "กรุณาเลือกวันเกิด";
+        }
+        return undefined;
 
 
       default:
@@ -127,7 +174,7 @@ export default function Index() {
     const newErrors: FromError = {};
     let isValid = true;
 
-    (Object.keys(FormData) as Array<keyof FromData>).forEach((key) => {
+    (Object.keys(formData) as Array<keyof FromData>).forEach((key) => {
       const error = validateField(key, formData[key]);
       if (error) {
         newErrors[key] = error;
@@ -138,7 +185,7 @@ export default function Index() {
     setErrors(newErrors);
 
     const allTouched: { [key: string]: boolean } = {};
-    Object.keys(FormData).forEach((key) => {
+    Object.keys(formData).forEach((key) => {
       allTouched[key] = true;
     });
 
@@ -148,10 +195,16 @@ export default function Index() {
   };
 
 
+
   const handleSubmit = async () => {
     Keyboard.dismiss();
 
-    if (!validataForm()) {
+    const isFormValid = validataForm();
+
+    if (!isAccepted) {
+      setCheckboxTouched(true);
+    }
+    if (!isFormValid || !isAccepted) {
       Alert.alert("ข้อมูลไม่ถูก")
       return;
     }
@@ -185,6 +238,8 @@ export default function Index() {
       password: '',
       confirmPassword: "",
       address: "",
+      gender: "",
+      birthDate: null,
     });
 
     setErrors({});
@@ -192,7 +247,15 @@ export default function Index() {
   }
 
 
+  const formatDate = (date: Date) => {
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   return (
+
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1"
@@ -250,7 +313,16 @@ export default function Index() {
               keyboardType="phone-pad"
               maxLength={10}
             />
- 
+
+            <RadioGroup
+              selected={formData.gender}
+              onSelect={(value) =>
+                setfromdata((prev) => ({ ...prev, gender: value }))
+              }
+              error={errorss.gender}
+            />
+
+
             <CustomInput
               label="ที่อยู่"
               placeholder="เมืองนนทบุรี นนทบุรี 11000 "
@@ -259,8 +331,49 @@ export default function Index() {
               onBlur={() => handleBlur("address")}
               error={errorss.address}
               touched={touched.address}
-             
+              multiline
+              numberOfLines={4}
+              maxLength={200}
+              style={{ height: 100, textAlignVertical: "top" }}
             />
+
+             <View >
+              <Text className="mb-1 font-semibold">วันเกิด</Text>
+
+              <TouchableOpacity
+                onPress={() => setShowDatePicker(true)}
+                className="border border-gray-300 rounded-lg p-3 bg-white"
+              >
+                <Text>
+                  {formData.birthDate
+                    ? formatDate(formData.birthDate)
+                    : "เลือกวันเกิด"}
+                </Text>
+              </TouchableOpacity>
+
+              {errorss.birthDate && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errorss.birthDate}
+                </Text>
+              )}
+            </View>
+
+            {showDatePicker && (
+              <DateTimePicker
+                value={formData.birthDate || new Date()}
+                mode="date"
+                display="default"
+                onChange={(event, selectedDate) => {
+                  setShowDatePicker(false);
+                  if (selectedDate) {
+                    setfromdata((prev) => ({
+                      ...prev,
+                      birthDate: selectedDate,
+                    }));
+                  }
+                }}
+              />
+            )}
 
             <CustomInput
               label="รหัสผ่าน"
@@ -274,6 +387,7 @@ export default function Index() {
               secureTextEntry
             />
 
+
             <CustomInput
               label="ยืรยันรหัสผ่าน"
               placeholder="ระบุรหัสผ่านอีกครั้ง"
@@ -286,6 +400,18 @@ export default function Index() {
               secureTextEntry
             />
           </View>
+
+          <Checkbox
+            label="ฉันยอมรับข้อกำหนดและเงื่อนไข"
+            checked={isAccepted}
+            onPress={() => {
+              setIsAccepted(!isAccepted);
+              setCheckboxTouched(true);
+            }}
+            touched={checkboxTouched}
+            error={!isAccepted ? "กรุณายอมรับข้อกำหนดก่อน" : undefined}
+          />
+
           <View>
             <CudtomButtom
               title="ลงทะเบียน"
@@ -314,6 +440,7 @@ export default function Index() {
               - รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร
             </Text>
           </View>
+
         </ScrollView>
       </TouchableNativeFeedback>
     </KeyboardAvoidingView>
