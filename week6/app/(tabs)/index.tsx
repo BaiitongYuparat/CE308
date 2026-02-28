@@ -3,14 +3,15 @@ import { router } from 'expo-router'
 
 
 const products = [
-  { id: 1, name: 'Premium Bean', price: '450' },
-  { id: 2, name: 'Green Tea Powder', price: '290' },
-  { id: 3, name: 'Oat Milk 1L', price: '115' },
+  { id: 1, name: 'Premium Bean', price: '450' ,description:'เมล็ดกาแฟคั่วกลางจากดอยช้าง หอมเข้ม รสชาติดี' },
+  { id: 2, name: 'Green Tea Powder', price: '290', description:'ผงชาเขียวมัทฉะแท้ 100% เหมาะสำหรับเครื่องดื่มและเบเกอรี่'},
+  { id: 3, name: 'Oat Milk 1L', price: '115' , description:'นมโอ๊ตเพื่อสุขภาพ ไม่มีแลคโตส หอมมันอร่อย' },
 
 
 ]
 export default function HomeScreen() {
   return (
+    
     <ScrollView contentContainerStyle={styles.scrollContent} >
 
       {products.map((item) => (
@@ -18,11 +19,12 @@ export default function HomeScreen() {
           key={item.id}
           onPress={() => {
             router.push({
-              pathname: '/product/[id]',
+              pathname: '/details',
               params: {
                 id: item.id,
                 name: item.name,
-                price: item.price
+                price: item.price,
+                description: item.description,
               }
             })
           }}
